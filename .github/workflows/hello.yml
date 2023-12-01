@@ -1,17 +1,35 @@
-name: Read File on Push
+name: Deploy Next.js to AWS S3
 
 on:
   push:
     branches:
-      - main
+      - main  # Triggers the workflow on push events to the main branch
 
 jobs:
-  read-and-print:
+  build-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+    - name: Checkout Repository
+      uses: actions/checkout@v2
 
-      - name: Read File and Print
-        run: cat workflow-demo.txt
+    - name: Set up Node.js
+      uses: actions/setup-node@v2
+      with:
+        node-version: '14'  # Specify the Node.js version
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Build
+      run: npm run build
+
+    - name: Deploy to AWS S3
+      uses: jakejarvis/s3-sync-action@v0.5.1
+      with:
+        args: --acl public-read --follow-symlinks --delete
+      env:
+        AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}  # Set your S3 bucket name
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}  # Set your AWS Access Key ID
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}  # Set your AWS Secret Access Key
+        AWS_REGION: 'ap-southeast-2'  # Set your AWS Region
+        SOURCE_DIR: 'out'  # The directory of your Next.js build
