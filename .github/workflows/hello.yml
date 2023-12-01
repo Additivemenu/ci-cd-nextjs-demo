@@ -1,0 +1,17 @@
+name: Read File on Push
+
+on:
+  push:
+    branches:
+      - feature/6-cicd-demo
+
+jobs:
+  read-and-print:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Read File and Print
+        run: cat workflow-demo.txt
